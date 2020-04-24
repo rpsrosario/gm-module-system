@@ -1,5 +1,7 @@
 {
   "resources": [
+    {"id":{"name":"__module_support__","path":"scripts/__module_support__/__module_support__.yy",},"order":15,},
+    {"id":{"name":"__module_support__tests__","path":"scripts/__module_support__tests__/__module_support__tests__.yy",},"order":16,},
     {"id":{"name":"__room__","path":"rooms/__room__/__room__.yy",},"order":14,},
   ],
   "Options": [

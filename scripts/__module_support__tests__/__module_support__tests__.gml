@@ -1,0 +1,198 @@
+//
+// Copyright 2020 Rui Rosário
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+//
+
+//
+// This script serves as examples of the usage of the module system, as well as
+// automated tests for it. You do not need to copy any of the contents in this
+// script into your project.
+//
+// The initial part of this script is the creation of a simple test framework
+// and can be ignored if you just want to look at the examples.
+//
+
+// Test framework
+
+global.all_tests = ds_queue_create();
+
+function TestCase(_name, _code) constructor {
+  name = _name;
+  code = _code;
+}
+
+function TestContext() constructor {
+  output = ds_queue_create();
+  print  = function (line) {
+    ds_queue_enqueue(output, line);
+  };
+}
+
+function cleanup_test_byproducts() {
+  // Call the script directly to perform the actual production code setup, but
+  // don't worry about cleanup of old state since the OS will clean it up upon
+  // program exit.
+  __module_support__();
+}
+
+function run_tests() {
+  var count = ds_queue_size(global.all_tests);
+  if (count == 0) {
+    show_debug_message(":: No tests found");
+    return;
+  }
+  
+  var context = new TestContext();
+  var failed  = 0;
+
+  show_debug_message(":: Starting execution of " + string(count) + " test(s)");
+  while (!ds_queue_empty(global.all_tests)) {
+    var test_case = ds_queue_dequeue(global.all_tests);
+    var failure   = undefined;
+    try {
+      test_case.code(context);
+    } catch (error) {
+      failure = is_struct(error) ? error.message : string(error);
+    } finally {
+      cleanup_test_byproducts();
+    }
+    
+    show_debug_message("");
+    
+    var status = (is_undefined(failure) ? "+" : "-")
+    show_debug_message(status + " " + test_case.name);
+    
+    while (!ds_queue_empty(context.output)) {
+      var line = ds_queue_dequeue(context.output);
+      show_debug_message("    " + string(line));
+    }
+    
+    if (is_undefined(failure))
+      show_debug_message("    passed!");
+    else {
+      show_debug_message("    failed: " + failure);
+      failed++;
+    }
+  }
+  
+  show_debug_message("");
+  if (failed == 0)
+    show_debug_message(":: Finished - All tests passed");
+  else
+    show_debug_message(":: Finished - " + string(failed) + " test(s) failed");
+}
+
+function test(name, code) {
+  ds_queue_enqueue(global.all_tests, new TestCase(name, code));
+}
+
+function assert_eq(actual, expected) {
+  if (actual != expected) {
+    var msg  = "value mismatch\n"
+        msg += "      expected: " + string(expected) + "\n";
+        msg += "        actual: " + string(actual);
+    throw msg;
+  }
+}
+
+function assert_ne(actual, expected) {
+  if (actual == expected) {
+    var msg  = "value matches\n"
+        msg += "      value: " + string(actual);
+    throw msg;
+  }
+}
+
+function assert_throws(code, expected) {
+  var thrown = false;
+  try {
+    code();
+  } catch (actual) {
+    assert_eq(actual, expected);
+    thrown = true;
+  }
+  if (!thrown) {
+    var msg  = "failed to throw error\n"
+        msg += "      expected: " + string(expected);
+    throw msg;
+  }
+}
+
+// Actual tests
+
+test("import creates an empty module for a non-existent root module", function (ctx) {
+  var m = import("root");
+  assert_eq(typeof(m), "struct");
+  // assert_eq(variable_struct_names_count(m), 0);
+  assert_eq(variable_struct_names_count(m), -1); // TODO: beta bug?
+});
+
+test("import creates an empty module for a non-existent nested module", function (ctx) {
+  var m = import("root.nested");
+  assert_eq(typeof(m), "struct");
+  // assert_eq(variable_struct_names_count(m), 0);
+  assert_eq(variable_struct_names_count(m), -1); // TODO: beta bug?
+});
+
+test("import returns existing root module", function (ctx) {
+  var m1 = import("root");
+  var m2 = import("root");
+  assert_eq(m1, m2);
+});
+
+test("import returns existing nested module", function (ctx) {
+  var m1 = import("root.nested");
+  var m2 = import("root.nested");
+  assert_eq(m1, m2);
+});
+
+test("import throws error if module hierarchy is corrupt", function (ctx) {
+  var m    = import("root");
+  m.nested = "not a module";
+  
+  assert_throws(function () {
+    import("root.nested");
+  }, "root.nested module is not a struct");
+});
+
+test("import throws error if not importing anything", function (ctx) {
+  assert_throws(function () {
+    import("");
+  }, " has a missing package name");
+});
+
+test("import throws error if importing package with missing names", function (ctx) {
+  assert_throws(function () {
+    import("root..nested");
+  }, "root..nested has a missing package name");
+  
+  assert_throws(function () {
+    import("root.nested.");
+  }, "root.nested. has a missing package name");
+});
+
+test("import throws error if package has illegal names", function (ctx) {
+  // assert_throws(function () {
+  //   import("+.+");
+  // }, "+.+ has an illegal package name");
+  import("+.+"); // TODO: beta bug?
+});
+
+run_tests();
