@@ -267,4 +267,50 @@ test("module can be initialized multiple times with different code", function (c
   assert_eq(m.value2, 2);
 });
 
+test("modules allow for complete separation of assets", function (m) {
+  var m1 = module("doe.john.vector", function (m) {
+    m.Vector = function (_x, _y) constructor {
+      x = _x;
+      y = _y;
+    }
+  });
+  
+  var m2 = module("doe.jane.vector", function (m) {
+    m.Vector = function (_x, _y) constructor {
+      x = _x;
+      y = _y;
+    }
+  });
+  
+  var m3 = module("doe.vector", function (m) {
+    m.Vector = function (_x, _y, _z) constructor {
+      x = _x;
+      y = _y;
+      z = _z;
+    }
+  });
+  
+  assert_ne(m1.Vector, m2.Vector);
+  assert_ne(m1.Vector, m3.Vector);
+  
+  var v1 = new m1.Vector(1, 2);
+  var v2 = new m2.Vector(1, 2);
+  var v3 = new m3.Vector(1, 2, 3);
+  
+  assert_ne(instanceof(v1), instanceof(v2));
+  assert_ne(instanceof(v1), instanceof(v3));
+  
+  assert_eq(v1.x, v2.x);
+  assert_eq(v1.y, v2.y);
+  assert_eq(v1.x, v3.x);
+  assert_eq(v1.y, v3.y);
+  assert_eq(v3.z, 3);
+  
+  var v11 = m1.Vector;
+  var v22 = m2.Vector;
+  
+  assert_eq(instanceof(new v11(0, 0)), instanceof(v1));
+  assert_eq(instanceof(new v22(0, 0)), instanceof(v2));
+});
+
 run_tests();
