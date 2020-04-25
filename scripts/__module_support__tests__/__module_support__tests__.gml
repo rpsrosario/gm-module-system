@@ -103,6 +103,11 @@ function test(name, code) {
   ds_queue_enqueue(global.all_tests, new TestCase(name, code));
 }
 
+function assert(condition, message) {
+  if (!condition)
+    throw message;
+}
+
 function assert_eq(actual, expected) {
   if (actual != expected) {
     var msg  = "value mismatch\n"
@@ -193,6 +198,73 @@ test("import throws error if package has illegal names", function (ctx) {
   //   import("+.+");
   // }, "+.+ has an illegal package name");
   import("+.+"); // TODO: beta bug?
+});
+
+test("module returns the initialized module", function (ctx) {
+  var m = module("root", function (m) {
+    m.value = 1;
+  });
+  
+  assert_eq(typeof(m), "struct");
+  assert(variable_struct_exists(m, "value"), "value variable is missing");
+  assert_eq(m.value, 1);
+});
+
+test("module return value is equivalent to module import", function (ctx) {
+  {
+    var m1 = import("root");
+    var m2 = module("root", function () { });
+    assert_eq(m1, m2);
+  }
+  
+  {
+    var m1 = module("root", function () { });
+    var m2 = import("root");
+    assert_eq(m1, m2);
+  }
+});
+
+test("module is initialized when the function is invoked", function (ctx) {
+  var m = import("root");
+  assert(!variable_struct_exists(m, "value"), "value variable exists");
+  
+  module("root", function (m) {
+    m.value = 1;
+  });
+  
+  assert(variable_struct_exists(m, "value"), "value variable is missing");
+  assert_eq(m.value, 1);
+});
+
+test("module can be initialized multiple times with same code", function (ctx) {
+  var initializer = function (m) {
+    if (!variable_struct_exists(m, "counter"))
+      m.counter = 0;
+    m.counter++;
+  };
+  
+  var m = import("root");
+  module("root", initializer);
+  module("root", initializer);
+  module("root", initializer);
+  
+  assert(variable_struct_exists(m, "counter"), "counter variable is missing");
+  assert_eq(m.counter, 3);
+});
+
+test("module can be initialized multiple times with different code", function (ctx) {
+  var m = import("root");
+  module("root", function (m) {
+    m.value1 = 1;
+  });
+  module("root", function (m) {
+    m.value2 = 2;
+  });
+  
+  assert(variable_struct_exists(m, "value1"), "value1 variable is missing");
+  assert_eq(m.value1, 1);
+  assert(variable_struct_exists(m, "value2"), "value2 variable is missing");
+  assert_eq(m.value2, 2);
 });
 
 run_tests();

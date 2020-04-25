@@ -38,15 +38,18 @@ global.__modules = {};
 // you are doing very well!
 global.__modules_cache = ds_map_create();
 
-/// @function                import(package)
-/// @param {string} package  The name of the package to import.
-/// @returns                 The module with the specified package.
+/// @function import(package)
+/// @param {string} package
+///   The package of the module to import.
+/// @returns
+///   The module with the specified package (which is actually a struct). Note
+///   that structs are not immutable so do not edit the returned struct as to
+///   do so might break the imported module!
 /// @description
-///   This function will "import" the module with the given package name. This
-///   means that a reference to the struct with that module's logic is
-///   returned. Packages are hierarchical and a dot is used to separate a
-///   package from a sub-package. Note that structs are not immutable so do not
-///   edit the returned struct as to do so might break the imported module!
+///   This function will "import" the module with the given package name.
+///   Packages are hierarchical and a dot is used to separate its name
+///   components. A name component follows the same rules a GameMaker's
+///   variable name follows.
 function import(package) {
   if (ds_map_exists(global.__modules_cache, package))
     return global.__modules_cache[? package];
@@ -104,4 +107,26 @@ function import(package) {
   // frequently, so cache it.
   global.__modules_cache[? package] = current;
   return current;
+}
+
+/// @function module(package, initializer)
+/// @param {string} package
+///   The package of the module to define.
+/// @param {function} initializer
+///   The function to initialize the module with.
+/// @returns
+///   The defined module as if import was invoked on its package.
+/// @description
+///   This function will define the module with the given package name.
+///   Packages are hierarchical and a dot is used to separate its name
+///   components. A name component follows the same rules a GameMaker's
+///   variable name follows. Note that the module initializer will receive
+///   exactly one argument: the struct reference of the module. This means that
+///   if the module has been previously initialized then the reference to the
+///   already initialized module will be returned, which can be used as a means
+///   to expand the feature set of an existing module.
+function module(package, initializer) {
+  var m = import(package);
+  initializer(m);
+  return m;
 }
