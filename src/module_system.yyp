@@ -1,6 +1,8 @@
 {
   "resources": [
-    {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},"order":1,},
+    {"id":{"name":"ModuleSystem","path":"scripts/ModuleSystem/ModuleSystem.yy",},"order":2,},
+    {"id":{"name":"UnitTests","path":"scripts/UnitTests/UnitTests.yy",},"order":4,},
+    {"id":{"name":"TestExecutor","path":"rooms/TestExecutor/TestExecutor.yy",},"order":1,},
   ],
   "Options": [
     {"name":"HTML5","path":"options/html5/options_html5.yy",},
@@ -17,7 +19,7 @@
     "children": [],
   },
   "RoomOrder": [
-    {"name":"Room1","path":"rooms/Room1/Room1.yy",},
+    {"name":"TestExecutor","path":"rooms/TestExecutor/TestExecutor.yy",},
   ],
   "Folders": [],
   "AudioGroups": [
