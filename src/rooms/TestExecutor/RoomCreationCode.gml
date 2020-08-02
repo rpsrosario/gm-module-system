@@ -58,7 +58,7 @@ var helpers = {
   format_number: function(number) {
     number = string(number);
     var next = string_length(number) - 2;
-    while (next > 0) {
+    while (next > 1) {
       number = string_insert(" ", number, next);
       next -= 3;
     }
