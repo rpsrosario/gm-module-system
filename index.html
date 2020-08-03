@@ -38,8 +38,20 @@
 		breaking changes may be introduced at any version number change.
 	</div>
 </article>
+<div class="content">
+	Table of Contents:
+	<ul>
+		<li><a href="#quick-start">Quick Start</a></li>
+		<li><a href="#config">Configuration Options</a></li>
+		<ul>
+			<li><a href="#config-integrity-checks">Integrity Checks</a></li>
+			<li><a href="#config-structure-validation">Module Structure Validation</a></li>
+		</ul>
+	</ul>
+</div>
 
-<h2 class="title">Quick Start</h2>
+
+<h2 class="title" id="quick-start">Quick Start</h2>
 <p class="content">
 	One of the goals of this library is to be as unobtrusive as possible so installing it is as
 	simple as downloading the <a download="ModuleSystem.gml" href="src/scripts/ModuleSystem/ModuleSystem.gml">
@@ -77,7 +89,7 @@
 	<a download="module-system.html" href="">download it</a> for offline usage.
 </p>
 
-<h2 class="title">Configuration Options</h2>
+<h2 class="title" id="config">Configuration Options</h2>
 <p class="content">
 	As previously stated this library attempts to be as unobtrusive as possible. This also means
 	not impacting performance too much and allowing for different configurations to exist for fine
@@ -96,7 +108,7 @@
 		the feature is enabled or not, which depending on the feature at hand might be a lot of code).
 	</div>
 </article>
-<div class="card">
+<div class="card" id="config-integrity-checks">
 	<header class="card-header">
 		<p class="card-header-title">GM_MODULE_SYSTEM__ENABLE_INTEGRITY_CHECKS</p>
 	</header>
@@ -122,7 +134,7 @@
 		</p>
 	</div>
 </div>
-<div class="card">
+<div class="card" id="config-structure-validation">
 	<header class="card-header">
 		<p class="card-header-title">GM_MODULE_SYSTEM__VALIDATE_MODULE_STRUCTURE</p>
 	</header>
