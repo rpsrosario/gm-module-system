@@ -82,26 +82,27 @@ if (GM_MODULE_SYSTEM__ENABLE_INTEGRITY_CHECKS) {
 if (GM_MODULE_SYSTEM__VALIDATE_MODULE_STRUCTURE) {
   var validate = method(global.__module_context__, function(ref) {
     if (!is_struct(ref))
-      throw "Reference is not a struct (" + typeof(ref) + ")";
+      throw "reference is not a struct: " + typeof(ref);
     var names = ["name", "dependencies", "is_loaded", "on_load", "on_unload"];
     for (var i = 0; i < array_length(names); i++) {
       if (!variable_struct_exists(ref, names[i]))
-        throw names[i] + " variable is missing in " + instanceof(ref);
+        throw names[i] + " variable is missing";
     }
     if (!is_string(ref.name))
-      throw "name is not a string in " + instanceof(ref);
+      throw "name is not a string: " + typeof(ref.name);
     if (!is_array(ref.dependencies))
-      throw "dependencies is not an array in " + instanceof(ref);
+      throw "dependencies is not an array: " + typeof(ref.dependencies);
     for (var i = 0; i < array_length(ref.dependencies); i++) {
       if (!is_string(ref.dependencies[i]))
-        throw "dependency is not a string: " + string(ref.dependencies[i]);
+        throw string(i) + ": dependency is not a string: "
+                        + typeof(ref.dependencies[i]);
     }
     if (ref.is_loaded != false && ref.is_loaded != true)
-      throw "is_loaded is not a boolean in " + instanceof(ref);
+      throw "is_loaded is not a boolean: " + typeof(ref.is_loaded);
     if (!is_method(ref.on_load))
-      throw "on_load is not a method in " + instanceof(ref);
+      throw "on_load is not a method: " + typeof(ref.on_load);
     if (!is_method(ref.on_unload))
-      throw "on_unload is not a method in " + instanceof(ref);
+      throw "on_unload is not a method: " + typeof(ref.on_unload);
   });
   
   /* internal usage - do not use unless you know what you're doing */

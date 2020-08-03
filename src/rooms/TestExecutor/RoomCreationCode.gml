@@ -18,9 +18,6 @@ function Test() constructor {
   time = undefined;
 }
 
-///
-/// Simple assertion function (because GM doesn't provide one.....).
-///
 function assert_eq(expected, actual) {
   if (expected != actual) {
     var typeE = typeof(expected);
@@ -30,6 +27,23 @@ function assert_eq(expected, actual) {
     message += "  expected: (" + typeE + ") " + string(expected) + "\n";
     message += "    actual: (" + typeA + ") " + string(actual);
     throw message;
+  }
+}
+
+function assert_throws(expected, code) {
+  try {
+    code();
+    throw "  nothing was thrown";
+  } catch (e) {
+    if (is_struct(e) && variable_struct_exists(e, "message"))
+      e = e.message;
+    assert_eq(expected, e);
+  }
+}
+
+function assert(condition, message) {
+  if (!condition) {
+    throw "  " + message;
   }
 }
 
