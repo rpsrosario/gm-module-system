@@ -45,33 +45,109 @@
 	simple as downloading the <a download="ModuleSystem.gml" href="src/scripts/ModuleSystem/ModuleSystem.gml">
 	source file</a> and placing it in your GameMaker project. You can then start using the module
 	system as you see fit. For example, you can register a custom module:
-	<pre><code class="lang-gml">
-		// Fictional code as actual API is not yet implemented
-		register_module({
-			name: "Example Module",
-			dependencies: [],
-			is_loaded: false,
-			on_load: function() {
-				self.do_stuff = function() {
-					show_debug_message("OMG I'm doing stuff!");
-				};
-				show_debug_message(name + " is loaded!");
-			},
-			on_unload: function() {
-				self.do_stuff = undefined;
-				show_debug_message(name + " is unloaded!");
-			},
-		});
-	</code></pre>
+</p>
+<pre><code class="lang-gml">
+	// Fictional code as actual API is not yet implemented
+	register_module({
+		name: "Example Module",
+		dependencies: [],
+		is_loaded: false,
+		on_load: function() {
+			self.do_stuff = function() {
+				show_debug_message("OMG I'm doing stuff!");
+			};
+			show_debug_message(name + " is loaded!");
+		},
+		on_unload: function() {
+			self.do_stuff = undefined;
+			show_debug_message(name + " is unloaded!");
+		},
+	});
+</code></pre>
+<p class="content">
 	And then to use it:
-	<pre><code class="lang-gml">
-		// Fictional code as actual API is not yet implemented
-		var module = find_module("Example Module");
-		module.do_stuff();
-	</code></pre>
+</p>
+<pre><code class="lang-gml">
+	// Fictional code as actual API is not yet implemented
+	var module = find_module("Example Module");
+	module.do_stuff();
+</code></pre>
+<p class="content">
 	Just refer to this documentation file for guidance on how to use the library. You can also
 	<a download="module-system.html" href="">download it</a> for offline usage.
 </p>
+
+<h2 class="title">Configuration Options</h2>
+<p class="content">
+	As previously stated this library attempts to be as unobtrusive as possible. This also means
+	not impacting performance too much and allowing for different configurations to exist for fine
+	tuning. This is accomplished by a set of supplied macros that control the configuration of the
+	library at compile time (including whether certains features are even compiled into the
+	resulting distribution or not). All of these macros have a name starting with
+	<code>GM_MODULE_SYSTEM__</code>.
+</p>
+<article class="message is-info">
+	<div class="message-body">
+		If a macro enables or disables a feature then you should always set it to a compile time
+		boolean expression (for example, just using the <code>true</code> or <code>false</code>
+		constants directly). This ensures that unused code is not compiled into the final distribution
+		if a feature is disabled. Otherwise, the feature will still be disabled at runtime but all of
+		the code that depends on it is still compiled (including any code that is checking for whether
+		the feature is enabled or not, which depending on the feature at hand might be a lot of code).
+	</div>
+</article>
+<div class="card">
+	<header class="card-header">
+		<p class="card-header-title">GM_MODULE_SYSTEM__ENABLE_INTEGRITY_CHECKS</p>
+	</header>
+	<div class="card-content">
+		<p class="content">
+			Enables or disables the inclusion of integrity checks for the module system's internal
+			state. These checks are meant to detect any (involuntary) tampering that might have
+			occurred and warn the user about it (by throwing a runtime exception). Therefore, they
+			are run whenever there was a possibility of uncontrolled code being executed. Some
+			potential occasions are: when an API method is invoked (since any amount of code might
+			have executed beforehand), when an API method invoked a user supplied method (since
+			there is no control over what executes as part of that method), etc.
+		</p>
+		<p class="content">
+			Due to the complexity of the checks and the amount of times they are executed <strong>it
+			is likely that these checks have a severe performance impact</strong>. It is recommended
+			to disable them for production builds of the game. They should only be enabled either on
+			debug builds or at the very least when dealing with code that uses the module system
+			directly.
+		</p>
+		<p class="content">
+			By default this feature is enabled in order to ensure proper usage of the module system.
+		</p>
+	</div>
+</div>
+<div class="card">
+	<header class="card-header">
+		<p class="card-header-title">GM_MODULE_SYSTEM__VALIDATE_MODULE_STRUCTURE</p>
+	</header>
+	<div class="card-content">
+		<p class="content">
+			Enables or disables the inclusion of structural validation of the modules supplied by
+			the user. Including these validations ensures that any supplied struct adheres to the
+			format expected by the module system, alerting the user (by throwing a runtime
+			exception) if that is not the case. Therefore, this validation is performed whenever
+			the user hands in a module to the system and after loading/unloading of the module (as
+			these operations can potentially mutate the module).
+		</p>
+		<p class="content">
+			Due to the complexity of the checks and the amount of times they are executed <strong>it
+			is likely that these checks have a severe performance impact</strong>. It is recommended
+			to disable them for production builds of the game. They should only be enabled either on
+			debug builds or at the very least when dealing with code that uses the module system
+			directly.
+		</p>
+		<p class="content">
+			By default this feature is enabled in order to ensure proper usage of the module system.
+		</p>
+	</div>
+</div>
+
 </div>
 <section>
 
